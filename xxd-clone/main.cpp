@@ -56,13 +56,33 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  char byte;
-  while (file.get(byte)) {
-    unsigned char value = static_cast<unsigned char>(byte);
+  constexpr int BYTES_PER_LINE = 16;
+  char buffer[BYTES_PER_LINE];
+  size_t offset = 0;
 
-    std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(value) << " ";
+  std::cout << "Offset    Hex bytes                                        Text\n";
+  while(file.read(buffer,BYTES_PER_LINE) || file.gcount() > 0){
+      int count = static_cast<int>(file.gcount());
+
+      std::cout << std::hex << std::setw(8) << std::setfill('0') << offset << "  ";
+
+      for(int i = 0;i<BYTES_PER_LINE;i++){
+          if(i < count){
+              std::count << std::setw(2) << static_cast<int>(static_cast<unsigned char>(buffer[i])) << " ";
+          }else{
+              std::cout << "   "; //Padding
+          }
+      }
+      std::cout << "  ";
+      for(int i = 0; i < count;i++){
+          unsigned char c = static_cast<unsigned char>(buffer[i]);
+          std::cout << (std::isprint(c) ? static_cast<char>(c) : ".");
+      }
+
+      std::cout << "\n";
+      offset += count;
   }
-  std::cout << byte;
+
   file.close();
   return 0;
 }
